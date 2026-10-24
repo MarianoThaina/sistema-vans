@@ -1,0 +1,6 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vans</title><link rel="stylesheet" href="css/style.css"></head>
+<body><main><div class="tabs"><a class="on" href="vans.html" aria-current="page">Vans</a><a href="usuarios.html">Clientes</a></div><div class="vans" id="vans"></div><p class="err" id="err" role="alert"></p></main>
+<script src="js/api.js"></script><script src="js/layout.js"></script><script>
+Layout.mount('usuarios');
+Api.listarVans().then(v=>{$('#vans').innerHTML=v.map(van=>`<section><h3>${esc(van.nome)}</h3>${van.usuarios.map(u=>`<button onclick="location.href='cliente-perfil.html?id=${encodeURIComponent(u.id)}'">${esc(u.nome)}</button>`).join('')||'<p class="center">Nenhum passageiro nesta van.</p>'}</section>`).join('')}).catch(e=>$('#err').textContent=e.message);
+</script></body></html>

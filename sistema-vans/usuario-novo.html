@@ -1,0 +1,10 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Novo usuário</title><link rel="stylesheet" href="css/style.css"></head>
+<body><main><h1>Novo usuário</h1>
+<form id="f" style="max-width:520px"><div class="grid2">
+<div><label>Nome</label><input name="nome" required placeholder="Digite o nome"></div><div><label>Sobrenome</label><input name="sobrenome" placeholder="Digite o sobrenome"></div>
+<div><label>Data de nascimento</label><input type="date" name="nascimento" required></div><div><label>Número do registro</label><input name="registro" readonly placeholder="Gerado ao salvar"></div></div>
+<p class="err" id="err" role="alert"></p><div class="actions"><a class="btn" href="vans.html">Cancelar</a><button class="btn ok">Salvar</button></div></form></main>
+<script src="js/api.js"></script><script src="js/layout.js"></script><script>
+Layout.mount('usuarios');
+$('#f').onsubmit=async e=>{e.preventDefault();try{await Api.criarUsuario(formData(e.target));location.href='vans.html'}catch(x){$('#err').textContent=x.message}};
+</script></body></html>

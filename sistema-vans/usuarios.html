@@ -1,0 +1,22 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Usuários</title><link rel="stylesheet" href="css/style.css"></head>
+<body><main>
+<div class="tabs"><a href="vans.html">Vans</a><a class="on" href="usuarios.html" aria-current="page">Clientes</a></div>
+<div class="row" style="margin-bottom:12px"><label for="q" style="margin:0">Pesquisar:</label><input id="q" type="search" placeholder="Digite para pesquisar..." style="max-width:320px">
+<button class="btn del" id="excluir" style="margin-left:auto" disabled>Excluir selecionados</button></div>
+<div style="overflow-x:auto"><table><thead><tr><th>Número de registro</th><th>Nome / Sobrenome</th><th>Data de Nascimento</th><th>Excluir</th></tr></thead><tbody id="tb"></tbody></table></div>
+<p class="err" id="err" role="alert"></p></main>
+<dialog id="dDel"><form method="dialog" class="center"><h2><span>EXCLUIR</span><button type="button" class="ic" data-close aria-label="Fechar">✕</button></h2>
+<div class="alerta" aria-hidden="true">!</div><p>Tem certeza que deseja excluir <b id="dN"></b>?</p><div class="warn">Esta ação não poderá ser desfeita.</div>
+<div class="actions"><button type="button" class="btn" data-close>Cancelar</button><button class="btn del" id="dOk">Excluir</button></div></form></dialog>
+<script src="js/api.js"></script><script src="js/layout.js"></script><script>
+Layout.mount('usuarios');
+let lista=[];const sel=new Set(),fmt=d=>d?d.split('-').reverse().join('/'):'';
+function desenhar(){$('#tb').innerHTML=lista.map(u=>`<tr><td>${esc(u.registro)}</td><td>${esc(u.nome)} ${esc(u.sobrenome)}</td><td>${fmt(u.nascimento)}</td>
+ <td><input type="checkbox" value="${u.id}" aria-label="Selecionar ${esc(u.nome)}" style="width:auto" ${sel.has(u.id)?'checked':''}></td></tr>`).join('')||'<tr><td colspan="4">Nenhum cliente encontrado.</td></tr>';$('#excluir').disabled=!sel.size}
+async function carregar(){try{lista=await Api.listarUsuarios($('#q').value.trim());$('#err').textContent='';desenhar()}catch(e){$('#err').textContent=e.message}}
+$('#tb').onchange=e=>{const id=+e.target.value;e.target.checked?sel.add(id):sel.delete(id);$('#excluir').disabled=!sel.size};
+$('#excluir').onclick=()=>{$('#dN').textContent=sel.size===1?lista.find(u=>sel.has(u.id)).nome:sel.size+' clientes';$('#dDel').showModal()};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
+$('#dOk').onclick=async e=>{e.preventDefault();try{await Promise.all([...sel].map(Api.excluirUsuario));sel.clear();$('#dDel').close();carregar()}catch(x){$('#dDel').close();$('#err').textContent=x.message}};
+$('#q').oninput=carregar;carregar();
+</script></body></html>

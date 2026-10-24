@@ -1,0 +1,47 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fornecedores</title><link rel="stylesheet" href="css/style.css"></head>
+<body><main>
+<div class="srch"><label for="q">Pesquisa :</label><input id="q" type="search" placeholder="Digite o nome ou CNPJ..."></div>
+<button class="btn ok" id="novo">+ Novo Fornecedor</button>
+<div style="overflow-x:auto;margin-top:12px"><table><thead><tr><th>ID</th><th>Nome</th><th>CNPJ</th><th>Telefone</th><th>Cidade</th><th>Status</th><th>Ações</th></tr></thead><tbody id="tb"></tbody></table></div>
+<nav class="pag" id="pag" aria-label="Paginação"></nav><p class="err" id="err" role="alert"></p></main>
+
+<dialog id="dForm"><form id="f"><h2><span id="dTit"></span><button type="button" class="ic" data-close aria-label="Fechar">✕</button></h2>
+<p class="sub">Dados do Fornecedor</p><div class="grid2">
+<div><label for="nome">Nome *</label><input id="nome" name="nome" required placeholder="Digite o nome"></div>
+<div><label for="cnpj">CNPJ *</label><input id="cnpj" name="cnpj" required inputmode="numeric" placeholder="00.000.000/0000-00"></div>
+<div><label for="telefone">Telefone *</label><input id="telefone" name="telefone" type="tel" required placeholder="(00) 0000-0000"></div>
+<div><label for="email">E-mail</label><input id="email" name="email" type="email" placeholder="exemplo@email.com"></div>
+<div><label for="status">Status</label><select id="status" name="status"><option>Ativo</option><option>Inativo</option></select></div></div>
+<p class="sub" style="margin-top:14px">Endereço</p><div class="grid2">
+<div><label for="rua">Rua *</label><input id="rua" name="rua" required placeholder="Digite a rua"></div><div><label for="numero">Número *</label><input id="numero" name="numero" required placeholder="Nº"></div>
+<div><label for="bairro">Bairro *</label><input id="bairro" name="bairro" required placeholder="Digite o bairro"></div><div><label for="cidade">Cidade *</label><input id="cidade" name="cidade" required placeholder="Digite a cidade"></div>
+<div><label for="cep">CEP *</label><input id="cep" name="cep" required placeholder="00000-000"></div></div>
+<p class="err" id="fErr" role="alert"></p>
+<div class="actions"><button type="button" class="btn" data-close>Cancelar</button><button class="btn ok" id="salvar">Salvar</button></div></form></dialog>
+
+<dialog id="dDel"><form method="dialog" class="center"><h2><span>EXCLUIR FORNECEDOR</span><button type="button" class="ic" data-close aria-label="Fechar">✕</button></h2>
+<div class="alerta" aria-hidden="true">!</div><h3 style="margin:8px 0">Excluir fornecedor</h3>
+<p>Tem certeza que deseja excluir o fornecedor<br><b id="delNome"></b>?</p><div class="warn">Esta ação não poderá ser desfeita.</div>
+<div class="actions"><button type="button" class="btn" data-close>Cancelar</button><button class="btn del" id="delOk">Excluir</button></div></form></dialog>
+
+<script src="js/api.js"></script><script src="js/layout.js"></script><script>
+Layout.mount('fornecedores');
+const POR_PAGINA=5,f=$('#f'),IC={ver:'<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',editar:'<path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/>',excluir:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/>'};
+const btn=(a,id)=>`<button class="ic" data-a="${a}" data-id="${id}" aria-label="${{ver:'Ver',editar:'Editar',excluir:'Excluir'}[a]}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${IC[a]}</svg></button>`;
+let lista=[],pg=1,editId=null;
+function desenhar(){const n=Math.max(1,Math.ceil(lista.length/POR_PAGINA));pg=Math.min(pg,n);
+ $('#tb').innerHTML=lista.slice((pg-1)*POR_PAGINA,pg*POR_PAGINA).map(c=>`<tr><td>${c.id}</td><td>${esc(c.nome)}</td><td>${esc(c.cnpj)}</td><td>${esc(c.telefone)}</td><td>${esc(c.cidade)}</td><td class="${c.status==='Ativo'?'good':'bad'}">${esc(c.status)}</td><td style="white-space:nowrap">${btn('ver',c.id)}${btn('editar',c.id)}${btn('excluir',c.id)}</td></tr>`).join('')
+  ||'<tr><td colspan="7">Nenhum fornecedor encontrado. Ajuste a pesquisa ou use "Novo Fornecedor".</td></tr>';
+ const b=(t,p,l,off)=>`<button data-p="${p}" aria-label="${l}" ${off?'disabled':''}>${t}</button>`;
+ $('#pag').innerHTML=b('«',1,'Primeira',pg===1)+b('‹',pg-1,'Anterior',pg===1)+Array.from({length:n},(_,i)=>`<button data-p="${i+1}" ${i+1===pg?'aria-current="page"':''}>${i+1}</button>`).join('')+b('›',pg+1,'Próxima',pg===n)+b('»',n,'Última',pg===n)}
+async function carregar(){try{lista=await Api.listarFornecedores($('#q').value.trim());$('#err').textContent='';desenhar()}catch(e){$('#err').textContent=e.message}}
+function abrir(t,c,ro){f.reset();$('#fErr').textContent='';$('#dTit').textContent=t;if(c)fillForm(f,c);[...f.elements].forEach(e=>{if(!e.hasAttribute('data-close'))e.disabled=!!ro});$('#salvar').hidden=!!ro;$('#dForm').showModal()}
+$('#pag').onclick=e=>{const b=e.target.closest('[data-p]');if(b&&!b.disabled){pg=+b.dataset.p;desenhar()}};
+$('#tb').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;const c=lista.find(x=>x.id==b.dataset.id);editId=c.id;
+ if(b.dataset.a==='ver')abrir('DADOS DO FORNECEDOR',c,true);else if(b.dataset.a==='editar')abrir('EDITAR FORNECEDOR',c);else{$('#delNome').textContent=c.nome;$('#dDel').showModal()}};
+$('#novo').onclick=()=>{editId=null;abrir('NOVO FORNECEDOR')};
+document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>b.closest('dialog').close());
+f.onsubmit=async e=>{e.preventDefault();try{const d=formData(f);editId?await Api.atualizarFornecedor(editId,d):await Api.criarFornecedor(d);$('#dForm').close();carregar()}catch(x){$('#fErr').textContent=x.message}};
+$('#delOk').onclick=async e=>{e.preventDefault();try{await Api.excluirFornecedor(editId);$('#dDel').close();carregar()}catch(x){$('#dDel').close();$('#err').textContent=x.message}};
+$('#q').oninput=()=>{pg=1;carregar()};carregar();
+</script></body></html>

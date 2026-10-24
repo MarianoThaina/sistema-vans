@@ -1,0 +1,12 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cliente</title><link rel="stylesheet" href="css/style.css"></head>
+<body style="display:flex;flex-direction:column;min-height:100vh"><header class="top"><span class="logo">▲</span><span class="sys">Sistema de Cadastro</span></header><main style="flex:1">
+  <div class="center"><a class="btn" href="clientes.html">Voltar</a></div>
+  <div class="kv"><span>Nome:<br><b id="nome"></b></span><span>Horário de saída: <b id="saida"></b><br>Horário do ponto: <b id="ponto"></b></span></div>
+  <div class="kv"><span>Sobrenome:<br><b id="sobrenome"></b></span></div>
+  <div class="center" style="margin-top:12px"><a class="btn" id="tela" href="#">Dados em tela cheia</a></div>
+  <p class="center">Imagem da VAN</p>
+  <div class="photo" role="img" aria-label="Foto do cliente"><svg width="90" height="90" viewBox="0 0 24 24" fill="#fff"><circle cx="12" cy="7" r="4.5"/><path d="M3 22c0-5 4-8 9-8s9 3 9 8z"/></svg></div>
+</main>
+<script src="js/api.js"></script><script>
+Api.obterCliente(qs('id')||1).then(c=>{$('#sobrenome').closest('.kv').style.display=c.sobrenome?'':'none';['nome','sobrenome'].forEach(k=>$('#'+k).textContent=c[k]||'');$('#saida').textContent=c.horarioSaida||'--:--';$('#ponto').textContent=c.horarioPonto||'--:--';$('#tela').href='cliente-detalhe.html?id='+c.id;});
+</script></body></html>

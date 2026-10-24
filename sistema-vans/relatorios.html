@@ -1,0 +1,12 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Relatórios</title><link rel="stylesheet" href="css/style.css"></head>
+<body><main><h1>Relatórios</h1><p>Selecione o relatório desejado:</p>
+<div class="rel" id="rel"></div></main>
+<script src="js/api.js"></script><script src="js/layout.js"></script><script>
+Layout.mount('relatorios');
+/* Cada card abre a tela correspondente. Se o back gerar relatórios (PDF/Excel), troque o href por GET /relatorios/:tipo */
+const S=p=>`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">${p}</svg>`;
+$('#rel').innerHTML=[['Clientes','clientes.html','<circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-4 3-6 6-6s6 2 6 6M15 15c3 0 6 1 6 5"/>'],
+ ['Fornecedores','fornecedores.html','<path d="M2 6h12v10H2zM14 9h4l4 4v3h-8z"/><circle cx="7" cy="18" r="2"/><circle cx="18" cy="18" r="2"/>'],
+ ['Vans','vans.html','<path d="M3 7h13l5 5v5H3z"/><circle cx="8" cy="18" r="2"/><circle cx="17" cy="18" r="2"/>'],
+ ['Usuários','usuarios.html','<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>']].map(r=>`<a href="${r[1]}">${S(r[2])}${r[0]}</a>`).join('');
+</script></body></html>
